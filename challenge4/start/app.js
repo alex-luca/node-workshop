@@ -1,9 +1,17 @@
 var express = require('express'), 
     http = require('http'), 
     path = require('path'),
-    Post = require('./Post');
+    Post = require('./Post'),
+    auth = require('./auth');
+    mongoose = require('mongoose');
 
 var app = express();
+
+mongoose.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+  if(!err) {
+    console.log("We are connected");
+  }
+});
 
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
@@ -22,10 +30,10 @@ app.configure('development', function() {
 });
 
 // Render our home page with all blog posts
-app.get('/', function(request, response) {
+app.get('/', auth, function(request, response) {
 
     // TODO: How do we get a list of all model objects using a mongoose model?
-    Post.CHANGEME(function(err, posts) {
+    Post.find(function(err, posts) {
         if (err) {
             response.send(500, 'There was an error - tough luck.');
         }
@@ -37,6 +45,18 @@ app.get('/', function(request, response) {
     });
 });
 
+app.get('/posts',auth, function(req, res) {
+     Post.find(function(err, posts) {
+        if (err) {
+            response.send(500, 'There was an error - tough luck.');
+        }
+        else {
+            res.json(posts);
+        }
+    });
+});
+
+
 // Render a form to enter a new post
 app.get('/new', function(request, response) {
     response.render('new', {});
@@ -45,10 +65,13 @@ app.get('/new', function(request, response) {
 // create a new blog post object
 app.post('/create', function(request, response) {
     // TODO: Create and save a Post model
-    var post = CHANGEME();
+    var post = new Post({
+         title: request.body.title,
+        content: request.body.content
+    });
 
     // TODO: Save the model
-    post.CHANGEME(function(err, model) {
+    post.save(function(err, model) {
         if (err) {
             response.send(500, 'There was an error - tough luck.');
         }

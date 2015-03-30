@@ -35,6 +35,18 @@ app.get('/', function(request, response) {
     });
 });
 
+
+app.get('/post',auth, function(req, res) {
+     Post.find(function(err, posts) {
+        if (err) {
+            response.send(500, 'There was an error - tough luck.');
+        }
+        else {
+            res.json(quotes);
+        }
+    });
+});
+
 // Render a form to enter a new post
 app.get('/new', function(request, response) {
     response.render('new', {});

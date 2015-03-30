@@ -31,12 +31,13 @@ var sessionInfo = {
 
 // Create session middleware
 var session = function(request, response, next) {
-    // TODO: How do we store session data on the request?  How do we continue with the request chain?
+    request.sessionInfo = sessionInfo;
+    next();
 };
 
 // Handle GET request to root URL
 app.get('/', session, function(request, response) {
-    // TODO: How do we render the "index.ejs" template from the /views directory?
+      response.render('index',request.sessionInfo);
 });
 
 app.post('/login', function(request, response) {
@@ -44,7 +45,7 @@ app.post('/login', function(request, response) {
     sessionInfo.name = request.body.username;
 
     // TODO: How do we send the user back to "/" after the request?
-    response.CHANGEME('/');
+    response.redirect('/');
 });
 
 http.createServer(app).listen(app.get('port'), function(){
